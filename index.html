@@ -1,338 +1,1092 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#09090f">
-  <meta name="description" content="Shadow Studio - Editor visual de GUIs para Roblox">
-  <title>Shadow Studio</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shadow Studio</title>
 
-  <link rel="stylesheet" href="style.css">
+<style>
+:root {
+  --bg: #101114;
+  --panel: #191a1f;
+  --panel2: #24262d;
+  --border: #343640;
+  --text: #f4f4f5;
+  --muted: #a0a2aa;
+  --accent: #8057ff;
+  --danger: #e34d61;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+button {
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 9px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+button:active {
+  opacity: .75;
+}
+
+.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.danger {
+  color: #ff9eaa;
+}
+
+input, select, textarea {
+  width: 100%;
+  min-width: 0;
+  background: #111216;
+  color: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+header {
+  min-height: 55px;
+  padding: 9px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.logo span {
+  color: var(--accent);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr) 230px;
+  gap: 8px;
+  padding: 8px;
+  min-height: calc(100dvh - 55px);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.panel-title {
+  padding: 11px;
+  border-bottom: 1px solid var(--border);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-content {
+  padding: 8px;
+}
+
+.explorer {
+  min-height: 300px;
+}
+
+.tree-item {
+  padding: 10px 7px;
+  margin-bottom: 3px;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.tree-item.active {
+  background: #44346d;
+}
+
+.tree-item .type {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 3px;
+}
+
+.center {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.preview-area {
+  flex: 1;
+  min-height: 380px;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+#stage {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  height: 600px;
+  max-height: 75vh;
+  min-height: 350px;
+  background: #0b0c10;
+  border: 1px dashed #454753;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.stage-label {
+  position: absolute;
+  top: 6px;
+  left: 7px;
+  color: #858592;
+  font-size: 9px;
+  pointer-events: none;
+}
+
+.element {
+  position: absolute;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  cursor: move;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.element.selected {
+  outline: 2px solid #ffb347;
+}
+
+.resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 13px;
+  height: 13px;
+  background: #ffb347;
+  border: 2px solid #222;
+  touch-action: none;
+}
+
+.field {
+  margin-bottom: 11px;
+}
+
+.field label {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.section {
+  color: var(--accent);
+  font-weight: bold;
+  margin: 15px 0 8px;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.status {
+  color: var(--muted);
+  padding: 4px;
+  overflow-wrap: anywhere;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: #000b;
+  padding: 12px;
+}
+
+.modal.open {
+  display: flex;
+}
+
+.dialog {
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dialog-header {
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#codeArea {
+  min-height: 300px;
+  resize: vertical;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.dialog-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 9px;
+}
+
+@media(max-width: 850px) {
+  main {
+    grid-template-columns: 115px minmax(0, 1fr);
+  }
+
+  .right {
+    grid-column: 1 / -1;
+  }
+
+  .preview-area {
+    min-height: 350px;
+    padding: 5px;
+  }
+
+  #stage {
+    height: 500px;
+  }
+
+  .panel-content {
+    padding: 6px;
+  }
+
+  .tree-item {
+    font-size: 11px;
+    padding: 8px 4px;
+  }
+}
+</style>
 </head>
+
 <body>
 
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-icon">S</div>
-      <div class="brand-info">
-        <h1>SHADOW STUDIO</h1>
-        <span>ROBLOX GUI EDITOR</span>
-      </div>
-    </div>
+<header>
+  <div class="logo"><span>SHADOW</span> STUDIO</div>
 
-    <div class="top-actions">
-      <button id="saveProject" class="icon-btn" title="Salvar projeto">
-        Salvar
-      </button>
-      <button id="loadProject" class="icon-btn" title="Abrir projeto">
-        Abrir
-      </button>
-      <button id="exportLua" class="primary-btn">
-        Exportar Lua
-      </button>
-    </div>
-  </header>
-
-  <main class="app-layout">
-
-    <aside class="sidebar left-sidebar">
-      <div class="panel-heading">
-        <h2>ELEMENTOS</h2>
-        <span class="panel-count" id="elementCount">0</span>
-      </div>
-
-      <p class="section-description">
-        Adicione componentes à sua interface
-      </p>
-
-      <div class="element-buttons">
-        <button class="element-btn" data-add="Frame">
-          <span class="element-icon frame-icon">F</span>
-          <span>
-            <strong>Frame</strong>
-            <small>Container visual</small>
-          </span>
-          <span class="add-symbol">+</span>
-        </button>
-
-        <button class="element-btn" data-add="TextLabel">
-          <span class="element-icon label-icon">T</span>
-          <span>
-            <strong>TextLabel</strong>
-            <small>Texto estático</small>
-          </span>
-          <span class="add-symbol">+</span>
-        </button>
-
-        <button class="element-btn" data-add="TextButton">
-          <span class="element-icon button-icon">B</span>
-          <span>
-            <strong>TextButton</strong>
-            <small>Botão clicável</small>
-          </span>
-          <span class="add-symbol">+</span>
-        </button>
-
-        <button class="element-btn" data-add="ImageLabel">
-          <span class="element-icon image-icon">I</span>
-          <span>
-            <strong>ImageLabel</strong>
-            <small>Imagem visual</small>
-          </span>
-          <span class="add-symbol">+</span>
-        </button>
-      </div>
-
-      <div class="panel-divider"></div>
-
-      <div class="panel-heading">
-        <h2>EXPLORER</h2>
-      </div>
-
-      <div class="explorer-tree" id="explorer">
-        <div class="tree-root">
-          <span class="tree-arrow">▼</span>
-          <span class="tree-icon">◇</span>
-          <span>ScreenGui</span>
-        </div>
-
-        <div class="tree-empty" id="explorerEmpty">
-          Nenhum elemento criado
-        </div>
-      </div>
-
-      <div class="sidebar-footer">
-        <span class="status-dot"></span>
-        <span>Shadow Studio</span>
-        <span class="version">v1.0</span>
-      </div>
-    </aside>
-
-    <section class="workspace">
-      <div class="workspace-toolbar">
-        <div class="breadcrumb">
-          <span>Projeto</span>
-          <span class="breadcrumb-separator">/</span>
-          <strong>ScreenGui</strong>
-        </div>
-
-        <div class="workspace-actions">
-          <button id="zoomOut" class="small-btn" title="Diminuir zoom">
-            −
-          </button>
-          <span id="zoomValue">100%</span>
-          <button id="zoomIn" class="small-btn" title="Aumentar zoom">
-            +
-          </button>
-          <button id="resetCanvas" class="small-btn" title="Limpar elementos">
-            Limpar
-          </button>
-        </div>
-      </div>
-
-      <div class="canvas-area" id="canvasArea">
-        <div class="canvas-grid"></div>
-
-        <div class="canvas-device">
-          <div class="device-top">
-            <span class="device-camera"></span>
-            <span class="device-speaker"></span>
-          </div>
-
-          <div class="canvas-screen" id="canvas">
-            <div class="canvas-welcome" id="canvasWelcome">
-              <div class="welcome-symbol">+</div>
-              <h3>Sua GUI começa aqui</h3>
-              <p>Adicione um elemento para começar a criar</p>
-            </div>
-          </div>
-
-          <div class="device-bottom">
-            <span></span>
-          </div>
-        </div>
-
-        <div class="canvas-caption">
-          <span class="status-dot"></span>
-          Área de edição
-        </div>
-      </div>
-
-      <div class="bottom-toolbar">
-        <div class="selection-info">
-          <span class="selection-dot"></span>
-          <span id="selectionStatus">Nenhum elemento selecionado</span>
-        </div>
-        <span class="bottom-hint">Shadow Studio Editor</span>
-      </div>
-    </section>
-
-    <aside class="sidebar right-sidebar">
-      <div class="panel-heading">
-        <h2>PROPERTIES</h2>
-      </div>
-
-      <p class="section-description">
-        Personalize o elemento selecionado
-      </p>
-
-      <div id="propertiesEmpty" class="properties-empty">
-        <div class="empty-symbol">◇</div>
-        <strong>Nenhuma seleção</strong>
-        <p>Selecione um elemento no canvas ou no Explorer para editar suas propriedades.</p>
-      </div>
-
-      <div id="propertiesPanel" hidden>
-
-        <div class="property-object">
-          <div class="property-object-icon" id="propertyTypeIcon">F</div>
-          <div>
-            <strong id="propertyObjectName">Frame</strong>
-            <small id="propertyObjectType">GuiObject</small>
-          </div>
-        </div>
-
-        <div class="property-group">
-          <h3>GERAL</h3>
-
-          <label class="field-label" for="propName">Nome</label>
-          <input id="propName" type="text" value="Frame">
-
-          <label class="field-label" for="propText">Texto</label>
-          <input id="propText" type="text" value="" placeholder="Texto do elemento">
-
-          <label class="field-label" for="propVisible">Visível</label>
-          <select id="propVisible">
-            <option value="true">Sim</option>
-            <option value="false">Não</option>
-          </select>
-        </div>
-
-        <div class="property-group">
-          <h3>POSIÇÃO</h3>
-
-          <div class="field-row">
-            <div>
-              <label class="field-label" for="propX">X (px)</label>
-              <input id="propX" type="number" value="20">
-            </div>
-            <div>
-              <label class="field-label" for="propY">Y (px)</label>
-              <input id="propY" type="number" value="20">
-            </div>
-          </div>
-        </div>
-
-        <div class="property-group">
-          <h3>TAMANHO</h3>
-
-          <div class="field-row">
-            <div>
-              <label class="field-label" for="propWidth">Largura</label>
-              <input id="propWidth" type="number" value="150" min="1">
-            </div>
-            <div>
-              <label class="field-label" for="propHeight">Altura</label>
-              <input id="propHeight" type="number" value="80" min="1">
-            </div>
-          </div>
-        </div>
-
-        <div class="property-group">
-          <h3>APARÊNCIA</h3>
-
-          <label class="field-label" for="propColor">
-            Cor de fundo
-          </label>
-
-          <div class="color-field">
-            <input id="propColor" type="color" value="#7029d9">
-            <input id="propColorText" type="text" value="#7029D9">
-          </div>
-
-          <label class="field-label" for="propTextColor">
-            Cor do texto
-          </label>
-
-          <div class="color-field">
-            <input id="propTextColor" type="color" value="#ffffff">
-            <input id="propTextColorText" type="text" value="#FFFFFF">
-          </div>
-
-          <label class="field-label" for="propTransparency">
-            Transparência
-          </label>
-          <input
-            id="propTransparency"
-            type="range"
-            min="0"
-            max="100"
-            value="0"
-          >
-          <div class="range-labels">
-            <span>Opaco</span>
-            <span id="transparencyValue">0%</span>
-          </div>
-
-          <label class="field-label" for="propRadius">
-            Cantos arredondados
-          </label>
-          <input id="propRadius" type="number" value="8" min="0" max="100">
-        </div>
-
-        <div class="property-group">
-          <h3>ALINHAMENTO</h3>
-
-          <div class="alignment-buttons">
-            <button id="alignLeft" title="Alinhar à esquerda">←</button>
-            <button id="alignCenter" title="Centralizar">↔</button>
-            <button id="alignTop" title="Alinhar ao topo">↑</button>
-            <button id="alignMiddle" title="Centralizar verticalmente">↕</button>
-          </div>
-        </div>
-
-        <button id="deleteElement" class="danger-btn">
-          Excluir elemento
-        </button>
-      </div>
-
-      <div class="sidebar-footer">
-        <span class="status-dot"></span>
-        <span>Propriedades</span>
-      </div>
-    </aside>
-
-  </main>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <div id="exportModal" class="modal" hidden>
-    <div class="modal-backdrop" id="closeModalBackdrop"></div>
-
-    <section class="modal-card">
-      <div class="modal-header">
-        <div>
-          <h2>Exportar para Lua</h2>
-          <p>Gere o código da sua interface Roblox</p>
-        </div>
-        <button id="closeExport" class="icon-btn">Fechar</button>
-      </div>
-
-      <textarea
-        id="luaOutput"
-        spellcheck="false"
-        placeholder="O código Lua aparecerá aqui..."
-      ></textarea>
-
-      <div class="modal-actions">
-        <button id="copyLua" class="primary-btn">Copiar código</button>
-        <button id="downloadLua" class="icon-btn">Salvar .lua</button>
-      </div>
-    </section>
+  <div class="actions">
+    <button id="themeBtn">Tema</button>
+    <button id="saveBtn">Salvar</button>
+    <button id="loadBtn">Carregar</button>
+    <button id="exportBtn" class="primary">Gui2Lua</button>
+    <button id="modifyBtn">Modificar GUI</button>
   </div>
+</header>
 
-  <input id="projectFile" type="file" accept=".json,.lua,.txt" hidden>
+<main>
 
-  <script src="app.js"></script>
+  <section class="panel">
+    <div class="panel-title">
+      Explorer
+      <button id="addBtn">+</button>
+    </div>
+
+    <div class="panel-content explorer" id="tree"></div>
+
+    <div class="panel-content">
+      <button id="duplicateBtn">Duplicar</button>
+      <button id="deleteBtn" class="danger">Apagar</button>
+    </div>
+  </section>
+
+  <section class="center">
+
+    <div class="toolbar">
+      <button data-add="Frame">+ Frame</button>
+      <button data-add="TextLabel">+ Texto</button>
+      <button data-add="TextButton">+ Botão</button>
+      <button data-add="TextBox">+ Caixa de texto</button>
+      <button data-add="ImageLabel">+ Imagem</button>
+      <button id="frontBtn">Trazer à frente</button>
+    </div>
+
+    <div class="preview-area">
+      <div id="stage">
+        <div class="stage-label">SHADOW STUDIO PREVIEW</div>
+      </div>
+    </div>
+
+    <div class="status" id="status">Shadow Studio pronto</div>
+
+  </section>
+
+  <section class="panel right">
+    <div class="panel-title">Propriedades</div>
+    <div class="panel-content" id="props">
+      <p class="hint">Selecione um elemento para editar.</p>
+    </div>
+  </section>
+
+</main>
+
+<div class="modal" id="modal">
+  <div class="dialog">
+    <div class="dialog-header">
+      <strong id="modalTitle">Editor de código</strong>
+      <button id="closeModal">Fechar</button>
+    </div>
+
+    <textarea id="codeArea" spellcheck="false"
+      placeholder="Cole seu código Lua ou JSON aqui..."></textarea>
+
+    <div class="dialog-footer">
+      <button id="copyBtn">Copiar código</button>
+      <button id="applyBtn" class="primary">Aplicar modificações</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+
+  let selected = 3;
+  let nextId = 4;
+  let lightTheme = false;
+  let modalMode = "export";
+
+  let nodes = [
+    {
+      id: 1,
+      type: "ScreenGui",
+      name: "MinhaInterface",
+      parent: null,
+      x: 0, y: 0, w: 100, h: 100,
+      bg: "#0b0c10",
+      text: "",
+      textColor: "#ffffff",
+      fontSize: 14,
+      visible: true,
+      z: 0
+    },
+    {
+      id: 2,
+      type: "Frame",
+      name: "MainFrame",
+      parent: 1,
+      x: 12, y: 15, w: 76, h: 38,
+      bg: "#20232b",
+      text: "",
+      textColor: "#ffffff",
+      fontSize: 14,
+      visible: true,
+      z: 1
+    },
+    {
+      id: 3,
+      type: "TextLabel",
+      name: "Title",
+      parent: 1,
+      x: 20, y: 19, w: 60, h: 9,
+      bg: "#20232b",
+      text: "SHADOW HUB",
+      textColor: "#ffffff",
+      fontSize: 20,
+      visible: true,
+      z: 2
+    }
+  ];
+
+  const getNode = id => nodes.find(n => n.id === id);
+  const children = id => nodes
+    .filter(n => n.parent === id)
+    .sort((a, b) => a.z - b.z);
+
+  const clamp = (v, min, max) =>
+    Math.max(min, Math.min(max, v));
+
+  function setStatus(message) {
+    $("status").textContent = message;
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]);
+  }
+
+  function selectNode(id) {
+    selected = id;
+    renderTree();
+    renderProps();
+    renderStage();
+  }
+
+  function renderTree() {
+    const tree = $("tree");
+    tree.innerHTML = "";
+
+    function addRow(node, depth) {
+      const row = document.createElement("div");
+      row.className = "tree-item" +
+        (node.id === selected ? " active" : "");
+
+      row.style.paddingLeft = (5 + depth * 9) + "px";
+      row.innerHTML =
+        escapeHTML(node.name) +
+        '<span class="type">' +
+        escapeHTML(node.type) +
+        "</span>";
+
+      row.onclick = () => selectNode(node.id);
+      tree.appendChild(row);
+
+      children(node.id).forEach(child =>
+        addRow(child, depth + 1)
+      );
+    }
+
+    addRow(getNode(1), 0);
+  }
+
+  function renderStage() {
+    const stage = $("stage");
+
+    stage.querySelectorAll(".element").forEach(el => el.remove());
+
+    function draw(node) {
+      if (node.id !== 1) {
+        const el = document.createElement("div");
+
+        el.className = "element" +
+          (node.id === selected ? " selected" : "");
+
+        el.style.left = node.x + "%";
+        el.style.top = node.y + "%";
+        el.style.width = node.w + "%";
+        el.style.height = node.h + "%";
+        el.style.background = node.bg;
+        el.style.color = node.textColor;
+        el.style.fontSize = node.fontSize + "px";
+        el.style.zIndex = node.z;
+        el.style.display = node.visible ? "flex" : "none";
+        el.style.alignItems = "center";
+        el.style.justifyContent = "center";
+        el.style.textAlign = "center";
+
+        if (node.type === "TextButton") {
+          el.style.border = "1px solid #ffffff55";
+          el.style.borderRadius = "5px";
+        }
+
+        el.textContent = node.text || "";
+
+        const handle = document.createElement("div");
+        handle.className = "resize";
+        el.appendChild(handle);
+
+        stage.appendChild(el);
+
+        el.addEventListener("pointerdown", event => {
+          if (event.target === handle) return;
+
+          event.stopPropagation();
+          selectNode(node.id);
+
+          const rect = stage.getBoundingClientRect();
+          const startX = event.clientX;
+          const startY = event.clientY;
+          const oldX = node.x;
+          const oldY = node.y;
+
+          function move(ev) {
+            node.x = clamp(
+              oldX + (ev.clientX - startX) / rect.width * 100,
+              0,
+              100 - node.w
+            );
+
+            node.y = clamp(
+              oldY + (ev.clientY - startY) / rect.height * 100,
+              0,
+              100 - node.h
+            );
+
+            el.style.left = node.x + "%";
+            el.style.top = node.y + "%";
+          }
+
+          function end() {
+            window.removeEventListener("pointermove", move);
+            window.removeEventListener("pointerup", end);
+            renderProps();
+          }
+
+          window.addEventListener("pointermove", move);
+          window.addEventListener("pointerup", end);
+        });
+
+        handle.addEventListener("pointerdown", event => {
+          event.stopPropagation();
+
+          const rect = stage.getBoundingClientRect();
+          const startX = event.clientX;
+          const startY = event.clientY;
+          const oldW = node.w;
+          const oldH = node.h;
+
+          function move(ev) {
+            node.w = clamp(
+              oldW + (ev.clientX - startX) / rect.width * 100,
+              3,
+              100 - node.x
+            );
+
+            node.h = clamp(
+              oldH + (ev.clientY - startY) / rect.height * 100,
+              3,
+              100 - node.y
+            );
+
+            el.style.width = node.w + "%";
+            el.style.height = node.h + "%";
+          }
+
+          function end() {
+            window.removeEventListener("pointermove", move);
+            window.removeEventListener("pointerup", end);
+            renderProps();
+          }
+
+          window.addEventListener("pointermove", move);
+          window.addEventListener("pointerup", end);
+        });
+      }
+
+      children(node.id).forEach(draw);
+    }
+
+    draw(getNode(1));
+
+    stage.onclick = event => {
+      if (event.target === stage) selectNode(1);
+    };
+  }
+
+  function makeField(label, key, value, type = "text") {
+    return `
+      <div class="field">
+        <label>${label}</label>
+        <input
+          data-key="${key}"
+          type="${type}"
+          value="${escapeHTML(value)}"
+        >
+      </div>
+    `;
+  }
+
+  function renderProps() {
+    const node = getNode(selected);
+
+    if (!node) {
+      $("props").innerHTML =
+        '<p class="hint">Selecione um elemento.</p>';
+      return;
+    }
+
+    if (node.id === 1) {
+      $("props").innerHTML =
+        '<div class="section">PROJETO</div>' +
+        makeField("Nome da GUI", "name", node.name);
+
+      bindProperties(node);
+      return;
+    }
+
+    $("props").innerHTML = `
+      <div class="section">GERAL</div>
+
+      ${makeField("Nome", "name", node.name)}
+
+      <div class="field">
+        <label>Tipo de elemento</label>
+        <select data-key="type">
+          ${[
+            "Frame",
+            "TextLabel",
+            "TextButton",
+            "TextBox",
+            "ImageLabel",
+            "ImageButton",
+            "ScrollingFrame"
+          ].map(type => `
+            <option ${node.type === type ? "selected" : ""}>
+              ${type}
+            </option>
+          `).join("")}
+        </select>
+      </div>
+
+      <div class="section">POSIÇÃO E TAMANHO</div>
+
+      <div class="grid">
+        ${makeField("X (%)", "x", node.x, "number")}
+        ${makeField("Y (%)", "y", node.y, "number")}
+        ${makeField("Largura (%)", "w", node.w, "number")}
+        ${makeField("Altura (%)", "h", node.h, "number")}
+      </div>
+
+      <div class="section">APARÊNCIA</div>
+
+      ${makeField("Texto", "text", node.text)}
+
+      <div class="grid">
+        ${makeField("Fundo", "bg", node.bg, "color")}
+        ${makeField("Cor do texto", "textColor", node.textColor, "color")}
+      </div>
+
+      <div class="grid">
+        ${makeField("Tamanho do texto", "fontSize", node.fontSize, "number")}
+        ${makeField("Ordem Z", "z", node.z, "number")}
+      </div>
+
+      <div class="field">
+        <label>
+          <input
+            type="checkbox"
+            data-key="visible"
+            ${node.visible ? "checked" : ""}
+            style="width:auto"
+          >
+          Visível
+        </label>
+      </div>
+
+      <p class="hint">
+        Arraste o elemento na prévia para mover.
+        Use o quadrado laranja para redimensionar.
+      </p>
+    `;
+
+    bindProperties(node);
+  }
+
+  function bindProperties(node) {
+    $("props").querySelectorAll("[data-key]").forEach(input => {
+      const update = () => {
+        const key = input.dataset.key;
+
+        let value;
+
+        if (input.type === "checkbox") {
+          value = input.checked;
+        } else if (input.type === "number") {
+          value = Number(input.value);
+        } else {
+          value = input.value;
+        }
+
+        if (["x", "y", "w", "h"].includes(key)) {
+          value = clamp(value, 0, 100);
+        }
+
+        node[key] = value;
+
+        if (key === "name" || key === "type") {
+          renderTree();
+        }
+
+        renderStage();
+        setStatus("Propriedade alterada: " + key);
+      };
+
+      input.addEventListener("change", update);
+    });
+  }
+
+  function addElement(type = "Frame") {
+    let parent = getNode(selected) || getNode(1);
+
+    if (
+      !["ScreenGui", "Frame", "ScrollingFrame"].includes(parent.type)
+    ) {
+      parent = getNode(1);
+    }
+
+    const id = nextId++;
+
+    const node = {
+      id,
+      type,
+      name: type + "_" + id,
+      parent: parent.id,
+      x: 20,
+      y: 25,
+      w: 40,
+      h: 15,
+      bg: "#30333d",
+      text: type === "TextLabel"
+        ? "Novo texto"
+        : type === "TextButton"
+          ? "Botão"
+          : "",
+      textColor: "#ffffff",
+      fontSize: 16,
+      visible: true,
+      z: Math.max(0, ...nodes.map(n => n.z)) + 1
+    };
+
+    nodes.push(node);
+    selectNode(node.id);
+    setStatus("Elemento adicionado");
+  }
+
+  function deleteSelected() {
+    if (!selected || selected === 1) {
+      setStatus("Não é possível apagar a raiz da GUI");
+      return;
+    }
+
+    const removeIds = new Set();
+
+    function collect(id) {
+      removeIds.add(id);
+      children(id).forEach(child => collect(child.id));
+    }
+
+    collect(selected);
+
+    nodes = nodes.filter(node => !removeIds.has(node.id));
+
+    selected = 1;
+    selectNode(1);
+    setStatus("Elemento apagado");
+  }
+
+  function duplicateSelected() {
+    const node = getNode(selected);
+
+    if (!node || node.id === 1) {
+      setStatus("Selecione um elemento para duplicar");
+      return;
+    }
+
+    const copy = {
+      ...node,
+      id: nextId++,
+      name: node.name + "_Copy",
+      x: clamp(node.x + 3, 0, 100 - node.w),
+      y: clamp(node.y + 3, 0, 100 - node.h)
+    };
+
+    nodes.push(copy);
+    selectNode(copy.id);
+    setStatus("Elemento duplicado");
+  }
+
+  function luaString(value) {
+    return JSON.stringify(String(value ?? ""));
+  }
+
+  function rgb(hex) {
+    const value = String(hex || "#ffffff").replace("#", "");
+
+    return [
+      parseInt(value.slice(0, 2), 16) || 0,
+      parseInt(value.slice(2, 4), 16) || 0,
+      parseInt(value.slice(4, 6), 16) || 0
+    ];
+  }
+
+  function exportLua() {
+    const lines = [
+      "-- Criado no Shadow Studio",
+      "local Players = game:GetService('Players')",
+      "local PlayerGui = Players.LocalPlayer:WaitForChild('PlayerGui')",
+      "local ScreenGui = Instance.new('ScreenGui')",
+      "ScreenGui.Name = " + luaString(getNode(1).name),
+      "ScreenGui.ResetOnSpawn = false",
+      "ScreenGui.Parent = PlayerGui",
+      ""
+    ];
+
+    function build(node, parentName) {
+      const variable = "obj" + node.id;
+
+      lines.push(
+        `local ${variable} = Instance.new(${luaString(node.type)})`,
+        `${variable}.Name = ${luaString(node.name)}`
+      );
+
+      if (node.type.startsWith("Text")) {
+        lines.push(
+          `${variable}.Text = ${luaString(node.text)}`,
+          `${variable}.TextColor3 = Color3.fromRGB(${rgb(node.textColor).join(", ")})`,
+          `${variable}.TextSize = ${Math.round(node.fontSize)}`
+        );
+      }
+
+      lines.push(
+        `${variable}.BackgroundColor3 = Color3.fromRGB(${rgb(node.bg).join(", ")})`,
+        `${variable}.Position = UDim2.new(${node.x / 100}, 0, ${node.y / 100}, 0)`,
+        `${variable}.Size = UDim2.new(${node.w / 100}, 0, ${node.h / 100}, 0)`,
+        `${variable}.Visible = ${node.visible}`,
+        `${variable}.ZIndex = ${Math.max(1, node.z)}`,
+        `${variable}.Parent = ${parentName}`,
+        ""
+      );
+
+      children(node.id).forEach(child =>
+        build(child, variable)
+      );
+    }
+
+    children(1).forEach(node => build(node, "ScreenGui"));
+
+    return lines.join("\n");
+  }
+
+  function openEditor(title, content, mode) {
+    modalMode = mode;
+    $("modalTitle").textContent = title;
+    $("codeArea").value = content;
+    $("modal").classList.add("open");
+  }
+
+  function saveProject() {
+    localStorage.setItem(
+      "shadowStudioProject",
+      JSON.stringify({ nodes, nextId })
+    );
+
+    setStatus("Projeto salvo neste navegador");
+  }
+
+  function loadProject() {
+    try {
+      const data = JSON.parse(
+        localStorage.getItem("shadowStudioProject")
+      );
+
+      if (!data || !Array.isArray(data.nodes)) {
+        throw new Error("Projeto inexistente");
+      }
+
+      nodes = data.nodes;
+      nextId = data.nextId || 4;
+      selected = 1;
+
+      selectNode(1);
+      setStatus("Projeto carregado");
+    } catch {
+      setStatus("Nenhum projeto salvo neste navegador");
+    }
+  }
+
+  function applyEditor() {
+    if (modalMode === "import") {
+      const source = $("codeArea").value.trim();
+
+      if (!source) {
+        setStatus("Cole um código antes de aplicar");
+        return;
+      }
+
+      try {
+        const data = JSON.parse(source);
+
+        if (!Array.isArray(data.nodes)) {
+          throw new Error("Formato inválido");
+        }
+
+        nodes = data.nodes;
+        nextId = data.nextId || 4;
+        selected = 1;
+
+        selectNode(1);
+        $("modal").classList.remove("open");
+        setStatus("Projeto JSON carregado");
+      } catch {
+        setStatus(
+          "Não foi possível importar. Este recurso aceita JSON de projeto, não scripts Lua arbitrários."
+        );
+      }
+
+      return;
+    }
+
+    setStatus("O código exportado está pronto para copiar");
+  }
+
+  $("addBtn").onclick = () => addElement();
+  $("deleteBtn").onclick = deleteSelected;
+  $("duplicateBtn").onclick = duplicateSelected;
+
+  document.querySelectorAll("[data-add]").forEach(button => {
+    button.onclick = () => addElement(button.dataset.add);
+  });
+
+  $("frontBtn").onclick = () => {
+    const node = getNode(selected);
+
+    if (!node || node.id === 1) return;
+
+    node.z = Math.max(...nodes.map(n => n.z)) + 1;
+
+    renderStage();
+    renderProps();
+    setStatus("Elemento trazido à frente");
+  };
+
+  $("saveBtn").onclick = saveProject;
+  $("loadBtn").onclick = loadProject;
+
+  $("exportBtn").onclick = () => {
+    openEditor("Exportar GUI para Lua", exportLua(), "export");
+  };
+
+  $("modifyBtn").onclick = () => {
+    openEditor(
+      "Modificar projeto",
+      JSON.stringify({ nodes, nextId }, null, 2),
+      "import"
+    );
+  };
+
+  $("closeModal").onclick = () => {
+    $("modal").classList.remove("open");
+  };
+
+  $("copyBtn").onclick = async () => {
+    const area = $("codeArea");
+
+    try {
+      await navigator.clipboard.writeText(area.value);
+      setStatus("Código copiado");
+    } catch {
+      area.focus();
+      area.select();
+      setStatus("Selecione o código e copie manualmente");
+    }
+  };
+
+  $("applyBtn").onclick = applyEditor;
+
+  $("themeBtn").onclick = () => {
+    lightTheme = !lightTheme;
+
+    const values = lightTheme
+      ? {
+          "--bg": "#eeeeF2",
+          "--panel": "#ffffff",
+          "--panel2": "#e4e5eb",
+          "--border": "#d0d1d9",
+          "--text": "#202127",
+          "--muted": "#686a75"
+        }
+      : {
+          "--bg": "#101114",
+          "--panel": "#191a1f",
+          "--panel2": "#24262d",
+          "--border": "#343640",
+          "--text": "#f4f4f5",
+          "--muted": "#a0a2aa"
+        };
+
+    Object.entries(values).forEach(([key, value]) => {
+      document.documentElement.style.setProperty(key, value);
+    });
+  };
+
+  document.addEventListener("keydown", event => {
+    if (
+      event.key === "Delete" &&
+      !$("modal").classList.contains("open")
+    ) {
+      deleteSelected();
+    }
+
+    if (
+      (event.ctrlKey || event.metaKey) &&
+      event.key.toLowerCase() === "s"
+    ) {
+      event.preventDefault();
+      saveProject();
+    }
+
+    if (event.key === "Escape") {
+      $("modal").classList.remove("open");
+    }
+  });
+
+  renderTree();
+  selectNode(3);
+})();
+</script>
+
 </body>
 </html>
