@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#09070f">
+<title>Shadow Studio</title>
+
+<style>
+:root {
+  --bg: #09070f;
+  --panel: #12101d;
+  --border: #29213d;
+  --purple: #9b5cff;
+  --text: #f4efff;
+  --muted: #a49bb8;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+}
+header {
+  padding: 19px 16px;
+  background: #100b1c;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.brand { font-size: 23px; font-weight: 900; }
+.brand span { color: var(--purple); }
+.subtitle { color: var(--muted); font-size: 12px; margin-top: 5px; }
+main { max-width: 850px; margin: auto; padding: 16px; }
+h2 { font-size: 18px; margin: 8px 0 14px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+button, input, textarea { font: inherit; }
+button {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 13px;
+  color: var(--text);
+  background: #1a1528;
+}
+button.active, .primary {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: white;
+  font-weight: bold;
+}
+button:active { transform: scale(.98); }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+label {
+  display: block;
+  font-size: 13px;
+  color: #d8cdec;
+  margin: 13px 0 7px;
+}
+input, textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #09070f;
+  color: white;
+  padding: 12px;
+  outline: none;
+}
+input:focus, textarea:focus { border-color: var(--purple); }
+input[type="color"] { height: 44px; padding: 4px; }
+input[type="range"] { padding: 0; accent-color: var(--purple); }
+textarea {
+  min-height: 230px;
+  resize: vertical;
+  font: 12px/1.5 monospace;
+  tab-size: 2;
+}
+.small { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; min-width: 0; }
+.preview {
+  min-height: 285px;
+  background:
+    radial-gradient(ellipse at top, #281547 0%, #100d19 45%, #08070d 100%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.mock {
+  width: 100%;
+  max-width: 310px;
+  background: #111019;
+  border: 1px solid var(--accent, #9b5cff);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 25px #0008;
+}
+.mock-head {
+  background: #1b1429;
+  padding: 14px;
+  font-weight: bold;
+  border-bottom: 1px solid #332345;
+  overflow-wrap: anywhere;
+}
+.mock-body { padding: 12px; }
+.mock-btn {
+  background: var(--accent, #9b5cff);
+  color: white;
+  border-radius: 7px;
+  padding: 12px;
+  margin: 8px 0;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.mock-foot { color: #aaa0b9; font-size: 10px; margin-top: 10px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.actions button { flex: 1; }
+.hidden { display: none !important; }
+footer { text-align: center; color: var(--muted); font-size: 11px; padding: 20px; }
+#notice { min-height: 18px; color: #c9a9ff; font-size: 12px; margin-top: 9px; }
+@media (min-width: 650px) {
+  .workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="brand">SHADOW <span>STUDIO</span></div>
+  <div class="subtitle">ROBLOX GUI CREATOR · MOBILE EDITION</div>
+</header>
+
+<main>
+  <div class="tabs">
+    <button id="createTab" class="active" onclick="showTab('create')">Criar GUI</button>
+    <button id="editTab" onclick="showTab('edit')">Editar código</button>
+  </div>
+
+  <section id="createSection">
+    <div class="workspace">
+      <div>
+        <div class="panel">
+          <h2>Personalizar GUI</h2>
+
+          <label for="guiTitle">Título da GUI</label>
+          <input id="guiTitle" maxlength="45" value="Shadow Hub">
+
+          <label for="guiDesc">Texto de descrição</label>
+          <input id="guiDesc" maxlength="100" value="Seu hub começa aqui">
+
+          <label for="guiButton">Nome do botão</label>
+          <input id="guiButton" maxlength="45" value="Principal">
+
+          <div class="row">
+            <div>
+              <label for="guiColor">Cor principal</label>
+              <input id="guiColor" type="color" value="#9b5cff">
+            </div>
+            <div>
+              <label for="guiWidth">Largura: <span id="widthValue">320</span></label>
+              <input id="guiWidth" type="range" min="250" max="450" value="320">
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" onclick="generateCode()">Gerar código Lua</button>
+            <button onclick="resetForm()">Limpar</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <h2>Prévia da GUI</h2>
+          <div class="preview">
+            <div class="mock" id="mock">
+              <div class="mock-head" id="previewTitle">Shadow Hub</div>
+              <div class="mock-body">
+                <div class="small" id="previewDesc">Seu hub começa aqui</div>
+                <div class="mock-btn" id="previewButton">Principal</div>
+                <div class="mock-foot">SHADOW STUDIO</div>
+              </div>
+            </div>
+          </div>
+          <p class="small">Esta é uma prévia visual no navegador, não uma execução real no Roblox.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Código Lua gerado</h2>
+      <p class="small">O script cria uma ScreenGui com título e botão. O botão é apenas demonstrativo; adiciona tua própria função Lua quando precisares.</p>
+      <textarea id="generatedCode" spellcheck="false" placeholder="Toca em Gerar código Lua..."></textarea>
+      <div class="actions">
+        <button class="primary" onclick="copyGenerated()">Copiar código</button>
+        <button onclick="downloadLua()">Selecionar código</button>
+      </div>
+      <div id="notice" role="status"></div>
+    </div>
+  </section>
+
+  <section id="editSection" class="hidden">
+    <div class="panel">
+      <h2>Editor de código Lua</h2>
+      <p class="small">
+        Cola aqui o código-fonte da tua GUI. Podes editar o texto diretamente.
+        Esta versão não interpreta automaticamente scripts Lua para reconstruir
+        a prévia visual: a prévia é controlada pelos campos da aba Criar GUI.
+      </p>
+      <label for="sourceCode">Código original</label>
+      <textarea id="sourceCode" spellcheck="false" placeholder="Cola aqui teu código Lua original..."></textarea>
+      <div class="actions">
+        <button class="primary" onclick="copySource()">Copiar código editado</button>
+        <button onclick="clearSource()">Limpar editor</button>
+      </div>
+      <div id="editNotice" role="status"></div>
+    </div>
+  </section>
+</main>
+
+<footer>SHADOW STUDIO · Ferramenta independente para criar interfaces Roblox</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function showTab(tab) {
+  const creating = tab === "create";
+  $("createSection").classList.toggle("hidden", !creating);
+  $("editSection").classList.toggle("hidden", creating);
+  $("createTab").classList.toggle("active", creating);
+  $("editTab").classList.toggle("active", !creating);
+}
+
+function updatePreview() {
+  $("previewTitle").textContent = $("guiTitle").value || "Shadow Hub";
+  $("previewDesc").textContent = $("guiDesc").value || "";
+  $("previewButton").textContent = $("guiButton").value || "Botão";
+  $("mock").style.setProperty("--accent", $("guiColor").value);
+  $("mock").style.width = $("guiWidth").value + "px";
+  $("widthValue").textContent = $("guiWidth").value;
+}
+
+["guiTitle", "guiDesc", "guiButton", "guiColor", "guiWidth"].forEach(id => {
+  $(id).addEventListener("input", updatePreview);
+});
+
+function generateCode() {
+  const title = $("guiTitle").value.trim() || "Shadow Hub";
+  const desc = $("guiDesc").value.trim();
+  const buttonText = $("guiButton").value.trim() || "Principal";
+  const color = $("guiColor").value;
+
+  const r = parseInt(color.slice(1, 3), 16) / 255;
+  const g = parseInt(color.slice(3, 5), 16) / 255;
+  const b = parseInt(color.slice(5, 7), 16) / 255;
+
+  // JSON.stringify produz strings válidas para os textos Lua comuns.
+  const luaString = value => JSON.stringify(value)
+    .replace(/\\u2028/g, "\\n")
+    .replace(/\\u2029/g, "\\n");
+
+  const code = `-- Shadow Studio | GUI Roblox
+-- Coloque este LocalScript em StarterPlayerScripts
+-- ou dentro de StarterGui no Roblox Studio.
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local oldGui = playerGui:FindFirstChild("ShadowStudioGUI")
+if oldGui then
+    oldGui:Destroy()
+end
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ShadowStudioGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+local frame = Instance.new("Frame")
+frame.Name = "Main"
+frame.Size = UDim2.fromOffset(${Number($("guiWidth").value)}, 190)
+frame.Position = UDim2.new(0.5, -${Math.round(Number($("guiWidth").value) / 2)}, 0.5, -95)
+frame.BackgroundColor3 = Color3.fromRGB(17, 16, 25)
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = frame
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.new(${r.toFixed(4)}, ${g.toFixed(4)}, ${b.toFixed(4)})
+stroke.Thickness = 1.5
+stroke.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -20, 0, 42)
+title.Position = UDim2.fromOffset(10, 5)
+title.BackgroundTransparency = 1
+title.Text = ${luaString(title)}
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextSize = 20
+title.Font = Enum.Font.GothamBold
+title.Parent = frame
+
+local description = Instance.new("TextLabel")
+description.Size = UDim2.new(1, -20, 0, 30)
+description.Position = UDim2.fromOffset(10, 48)
+description.BackgroundTransparency = 1
+description.Text = ${luaString(desc)}
+description.TextColor3 = Color3.fromRGB(190, 180, 205)
+description.TextSize = 13
+description.Font = Enum.Font.Gotham
+description.Parent = frame
+
+local actionButton = Instance.new("TextButton")
+actionButton.Size = UDim2.new(1, -24, 0, 42)
+actionButton.Position = UDim2.fromOffset(12, 92)
+actionButton.BackgroundColor3 = Color3.new(${r.toFixed(4)}, ${g.toFixed(4)}, ${b.toFixed(4)})
+actionButton.Text = ${luaString(buttonText)}
+actionButton.TextColor3 = Color3.new(1, 1, 1)
+actionButton.TextSize = 15
+actionButton.Font = Enum.Font.GothamBold
+actionButton.Parent = frame
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, 8)
+buttonCorner.Parent = actionButton
+
+actionButton.Activated:Connect(function()
+    print("Botão pressionado: " .. actionButton.Text)
+    -- Adicione aqui a função que você quer executar.
+end)
+`;
+  $("generatedCode").value = code;
+  $("notice").textContent = "Código gerado. Confere e copia abaixo.";
+}
+
+async function copyText(text, target) {
+  if (!text.trim()) {
+    target.textContent = "Não há código para copiar.";
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    target.textContent = "Código copiado!";
+  } catch (error) {
+    target.textContent = "Seleciona o código e usa Copiar no teclado do celular.";
+    const area = target.id === "notice" ? $("generatedCode") : $("sourceCode");
+    area.focus();
+    area.select();
+  }
+}
+
+function copyGenerated() {
+  copyText($("generatedCode").value, $("notice"));
+}
+
+function copySource() {
+  copyText($("sourceCode").value, $("editNotice"));
+}
+
+function clearSource() {
+  if (confirm("Apagar o código deste editor?")) {
+    $("sourceCode").value = "";
+    $("editNotice").textContent = "Editor limpo.";
+  }
+}
+
+function resetForm() {
+  $("guiTitle").value = "Shadow Hub";
+  $("guiDesc").value = "Seu hub começa aqui";
+  $("guiButton").value = "Principal";
+  $("guiColor").value = "#9b5cff";
+  $("guiWidth").value = 320;
+  $("generatedCode").value = "";
+  $("notice").textContent = "";
+  updatePreview();
+}
+
+function downloadLua() {
+  const area = $("generatedCode");
+  if (!area.value.trim()) {
+    $("notice").textContent = "Gera o código primeiro.";
+    return;
+  }
+  area.focus();
+  area.select();
+  $("notice").textContent = "Código selecionado. Toca em Copiar no menu do celular.";
+}
+
+updatePreview();
+</script>
+</body>
+</html>
